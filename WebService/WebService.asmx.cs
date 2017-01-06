@@ -12,7 +12,7 @@ using CommonSecurity;
 using StockExchangeApi;
 using StockExchangeSimulator;
 
-namespace WebApp
+namespace WebService
 {
     /// <summary>
     /// Summary description for WebService
@@ -31,7 +31,7 @@ namespace WebApp
         [SoapHeader("Identity")]
         public List<StockTickerSerializable> GetPricesForStocks(List<string> stockSymbolList)
         {
-            if (!Authenticator.CanWeTrustTo(Identity))
+           // if (!Authenticator.CanWeTrustTo(Identity))
             {
                 //Context.Response.Status = "403 Forbidden";
                 Context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -50,13 +50,4 @@ namespace WebApp
         }
     }
 
-    //public interface IAuthenticator
-    //{
-    //    bool CanWeTrustTo(IIdentify identity);
-    //}
-
-    //public interface IIdentify
-    //{
-    //    string Token { get; set; }
-    //}
 }

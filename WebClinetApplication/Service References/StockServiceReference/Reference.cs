@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System;
+
 namespace WebClinetApplication.StockServiceReference {
     
     
@@ -204,6 +206,11 @@ namespace WebClinetApplication.StockServiceReference {
             inValue.TheSimplestIdentity = TheSimplestIdentity;
             inValue.stockSymbolList = stockSymbolList;
             return ((WebClinetApplication.StockServiceReference.WebServiceSoap)(this)).GetPricesForStocksAsync(inValue);
+        }
+
+        internal static object GetPricesForStocks(object theSimplestIdentityEver, string[] tickerNames)
+        {
+            throw new NotImplementedException();
         }
     }
 }

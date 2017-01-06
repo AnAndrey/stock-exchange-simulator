@@ -1,7 +1,6 @@
 using System;
-using StockExchangeApi;
 
-namespace StockExchangeSimulator
+namespace WebService
 {
     [Serializable]
     public class StockTickerSerializable

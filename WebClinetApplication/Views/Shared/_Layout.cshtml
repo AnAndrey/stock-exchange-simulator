@@ -10,7 +10,6 @@
     @Scripts.Render("~/bundles/bootstrap")
 </head>
 <body>
-    <div id="wrapper">
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
@@ -23,7 +22,7 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li>@Html.ActionLink("Settings", "Settings", "Home")</li>
+                        <li>@Html.ActionLink("Settings", "Settings", "Settings")</li>
 
                     </ul>
                     @Html.Partial("_LoginPartial")
@@ -33,13 +32,10 @@
         <div class="container body-content">
             @RenderBody()
             <hr />
-            <div id="footer">
-                <footer>
-                    <p align="center">&copy; @DateTime.Now.Year - An A.G. for Crossover.</p>
-                </footer>
-            </div>
+            <footer>
+                <p align="center">&copy; @DateTime.Now.Year - An A.G. for Crossover.</p>
+            </footer>
         </div>
-    </div>
 
     @RenderSection("scripts", required: false)
 </body>

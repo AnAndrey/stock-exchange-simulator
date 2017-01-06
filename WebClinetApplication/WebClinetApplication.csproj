@@ -204,9 +204,11 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Partial\TheSimplestIdentity.Partial.cs" />
     <Compile Include="Migrations\201701051832080_UserSettings.cs" />
     <Compile Include="Migrations\201701051832080_UserSettings.Designer.cs">
       <DependentUpon>201701051832080_UserSettings.cs</DependentUpon>
@@ -300,7 +302,7 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <None Include="Service References\StockServiceReference\WebService.wsdl" />
-    <Content Include="Views\Home\Settings.cshtml" />
+    <Content Include="Views\Settings\Settings.cshtml" />
     <Content Include="Views\Home\_StockPricesView.cshtml" />
     <Content Include="Views\Shared\Exception.cshtml" />
   </ItemGroup>
@@ -325,6 +327,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonSecurity\CommonSecurity.csproj">

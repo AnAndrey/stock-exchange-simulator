@@ -13,7 +13,7 @@ namespace WebClinetApplication.Models
         public bool IsChecked { get; set; }
     }
 
-    public class StockTickerModelList
+    public class StockTickerListModel
     {
         public List<StockTickerModel> tickers { get; set; }
     }
