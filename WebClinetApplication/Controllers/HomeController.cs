@@ -26,7 +26,9 @@ namespace WebClinetApplication.Controllers
         {
             _dbContext.Dispose();
         }
-
+        
+        //
+        // GET: /Home/Index
         public ActionResult Index()
         {
             return View();
@@ -43,6 +45,8 @@ namespace WebClinetApplication.Controllers
 
         protected virtual WebServiceSoapClient WebServiceSoapClient { get; } = new WebServiceSoapClient();
 
+        //
+        // GET: /Home/StockPrices
         public ActionResult StockPrices()
         {
             try

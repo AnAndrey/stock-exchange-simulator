@@ -30,11 +30,13 @@ namespace WebClinetApplication.Controllers
             }
         }
 
-        public ActionResult Settings()
+        //
+        // GET: /Settings/Index
+        public ActionResult Index()
         {
             if (!Request.IsAuthenticated)
             {
-                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Settings", "Settings") });
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Settings") });
             }
 
             HashSet<string> userStocks = null;
@@ -58,6 +60,8 @@ namespace WebClinetApplication.Controllers
             return View(listOfTickers);
         }
 
+        //
+        // Post: /Settings/Save
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Save(StockTickerListModel incomeTickers)
@@ -92,6 +96,6 @@ namespace WebClinetApplication.Controllers
             return userSettings;
         }
 
-        public WebServiceSoapClient WebServiceSoapClient { get;} = new WebServiceSoapClient();
+        public virtual WebServiceSoapClient WebServiceSoapClient { get;} = new WebServiceSoapClient();
     }
 }

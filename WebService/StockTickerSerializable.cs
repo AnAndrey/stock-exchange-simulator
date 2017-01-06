@@ -2,6 +2,9 @@ using System;
 
 namespace WebService
 {
+    /// <summary>
+    /// Serializable object that contains Stock Name and Stock Price
+    /// </summary>
     [Serializable]
     public class StockTickerSerializable
     {
