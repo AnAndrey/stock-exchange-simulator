@@ -6,9 +6,9 @@ using CommonSecurity;
 
 namespace WebClientApplication.StockServiceReference
 {
-    public partial class TheSimplestIdentity
+    public partial class SoapSimpleIdentity
     {
-        public static TheSimplestIdentity TheSimplestIdentityEver { get; } = new TheSimplestIdentity()
+        public static SoapSimpleIdentity TheSimplestIdentityEver { get; } = new SoapSimpleIdentity()
         {
             Token = TheSimplestIdentityValidator.CreateTrustFullIdentity().Token
 

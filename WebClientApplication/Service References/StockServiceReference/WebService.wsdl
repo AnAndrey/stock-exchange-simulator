@@ -32,8 +32,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="Price" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:element name="TheSimplestIdentity" type="tns:TheSimplestIdentity" />
-      <s:complexType name="TheSimplestIdentity">
+      <s:element name="SoapSimpleIdentity" type="tns:SoapSimpleIdentity" />
+      <s:complexType name="SoapSimpleIdentity">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Token" type="s:string" />
         </s:sequence>
@@ -47,8 +47,8 @@
   <wsdl:message name="GetPricesForStocksSoapOut">
     <wsdl:part name="parameters" element="tns:GetPricesForStocksResponse" />
   </wsdl:message>
-  <wsdl:message name="GetPricesForStocksTheSimplestIdentity">
-    <wsdl:part name="TheSimplestIdentity" element="tns:TheSimplestIdentity" />
+  <wsdl:message name="GetPricesForStocksSoapSimpleIdentity">
+    <wsdl:part name="SoapSimpleIdentity" element="tns:SoapSimpleIdentity" />
   </wsdl:message>
   <wsdl:portType name="WebServiceSoap">
     <wsdl:operation name="GetPricesForStocks">
@@ -62,7 +62,7 @@
       <soap:operation soapAction="https://tempuri.org/GetPricesForStocks" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
-        <soap:header message="tns:GetPricesForStocksTheSimplestIdentity" part="TheSimplestIdentity" use="literal" />
+        <soap:header message="tns:GetPricesForStocksSoapSimpleIdentity" part="SoapSimpleIdentity" use="literal" />
       </wsdl:input>
       <wsdl:output>
         <soap:body use="literal" />
@@ -75,7 +75,7 @@
       <soap12:operation soapAction="https://tempuri.org/GetPricesForStocks" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
-        <soap12:header message="tns:GetPricesForStocksTheSimplestIdentity" part="TheSimplestIdentity" use="literal" />
+        <soap12:header message="tns:GetPricesForStocksSoapSimpleIdentity" part="SoapSimpleIdentity" use="literal" />
       </wsdl:input>
       <wsdl:output>
         <soap12:body use="literal" />

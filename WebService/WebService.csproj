@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SoapSimpleIdentity.cs" />
     <Compile Include="StockTickerSerializable.cs" />
     <Compile Include="WebService.asmx.cs">
       <DependentUpon>WebService.asmx</DependentUpon>
@@ -142,6 +143,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonSecurityApi\CommonSecurityApi.csproj">
+      <Project>{1f4ca6ad-c5a3-440e-b297-b39e60019f0e}</Project>
+      <Name>CommonSecurityApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CommonSecurity\CommonSecurity.csproj">
       <Project>{d5e56162-36f2-40db-b4dd-bc41d6784bfc}</Project>
       <Name>CommonSecurity</Name>

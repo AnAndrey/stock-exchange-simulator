@@ -30,7 +30,7 @@ namespace WebClientApplication.StockServiceReference {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="https://tempuri.org/")]
-    public partial class TheSimplestIdentity : object, System.ComponentModel.INotifyPropertyChanged {
+    public partial class SoapSimpleIdentity : object, System.ComponentModel.INotifyPropertyChanged {
         
         private string tokenField;
         
@@ -123,7 +123,7 @@ namespace WebClientApplication.StockServiceReference {
     public partial class GetPricesForStocksRequest {
         
         [System.ServiceModel.MessageHeaderAttribute(Namespace="https://tempuri.org/")]
-        public WebClientApplication.StockServiceReference.TheSimplestIdentity TheSimplestIdentity;
+        public WebClientApplication.StockServiceReference.SoapSimpleIdentity SoapSimpleIdentity;
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="https://tempuri.org/", Order=0)]
         public string[] stockSymbolList;
@@ -131,8 +131,8 @@ namespace WebClientApplication.StockServiceReference {
         public GetPricesForStocksRequest() {
         }
         
-        public GetPricesForStocksRequest(WebClientApplication.StockServiceReference.TheSimplestIdentity TheSimplestIdentity, string[] stockSymbolList) {
-            this.TheSimplestIdentity = TheSimplestIdentity;
+        public GetPricesForStocksRequest(WebClientApplication.StockServiceReference.SoapSimpleIdentity SoapSimpleIdentity, string[] stockSymbolList) {
+            this.SoapSimpleIdentity = SoapSimpleIdentity;
             this.stockSymbolList = stockSymbolList;
         }
     }
@@ -186,9 +186,9 @@ namespace WebClientApplication.StockServiceReference {
             return base.Channel.GetPricesForStocks(request);
         }
         
-        public WebClientApplication.StockServiceReference.StockTickerSerializable[] GetPricesForStocks(WebClientApplication.StockServiceReference.TheSimplestIdentity TheSimplestIdentity, string[] stockSymbolList) {
+        public WebClientApplication.StockServiceReference.StockTickerSerializable[] GetPricesForStocks(WebClientApplication.StockServiceReference.SoapSimpleIdentity SoapSimpleIdentity, string[] stockSymbolList) {
             WebClientApplication.StockServiceReference.GetPricesForStocksRequest inValue = new WebClientApplication.StockServiceReference.GetPricesForStocksRequest();
-            inValue.TheSimplestIdentity = TheSimplestIdentity;
+            inValue.SoapSimpleIdentity = SoapSimpleIdentity;
             inValue.stockSymbolList = stockSymbolList;
             WebClientApplication.StockServiceReference.GetPricesForStocksResponse retVal = ((WebClientApplication.StockServiceReference.WebServiceSoap)(this)).GetPricesForStocks(inValue);
             return retVal.GetPricesForStocksResult;
@@ -199,9 +199,9 @@ namespace WebClientApplication.StockServiceReference {
             return base.Channel.GetPricesForStocksAsync(request);
         }
         
-        public System.Threading.Tasks.Task<WebClientApplication.StockServiceReference.GetPricesForStocksResponse> GetPricesForStocksAsync(WebClientApplication.StockServiceReference.TheSimplestIdentity TheSimplestIdentity, string[] stockSymbolList) {
+        public System.Threading.Tasks.Task<WebClientApplication.StockServiceReference.GetPricesForStocksResponse> GetPricesForStocksAsync(WebClientApplication.StockServiceReference.SoapSimpleIdentity SoapSimpleIdentity, string[] stockSymbolList) {
             WebClientApplication.StockServiceReference.GetPricesForStocksRequest inValue = new WebClientApplication.StockServiceReference.GetPricesForStocksRequest();
-            inValue.TheSimplestIdentity = TheSimplestIdentity;
+            inValue.SoapSimpleIdentity = SoapSimpleIdentity;
             inValue.stockSymbolList = stockSymbolList;
             return ((WebClientApplication.StockServiceReference.WebServiceSoap)(this)).GetPricesForStocksAsync(inValue);
         }

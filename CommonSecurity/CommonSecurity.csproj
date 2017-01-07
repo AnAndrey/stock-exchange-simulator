@@ -45,6 +45,12 @@
     <Compile Include="TheSimplestIdentity.cs" />
     <Compile Include="TheSimplestIdentityValidator.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommonSecurityApi\CommonSecurityApi.csproj">
+      <Project>{1f4ca6ad-c5a3-440e-b297-b39e60019f0e}</Project>
+      <Name>CommonSecurityApi</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

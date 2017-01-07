@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
-using static WebClientApplication.StockServiceReference.TheSimplestIdentity;
-
+using static WebClientApplication.StockServiceReference.SoapSimpleIdentity;
 using WebClientApplication.Models;
 using WebClientApplication.StockServiceReference;
 

@@ -1,11 +1,10 @@
 ﻿using System;
+using CommonSecurityApi;
 
 namespace CommonSecurity
 {
-    /// <summary>
-    /// Provides security checking
-    /// </summary>
-    public partial class TheSimplestIdentityValidator
+
+    public class TheSimplestIdentityValidator : IIdentityValidator
     {
         private const string CSecurityIdentificator = "2BFF2891-A984-4273-99E7-03177642793D";
 
@@ -20,10 +19,7 @@ namespace CommonSecurity
             };
         }
 
-        /// <summary>
-        /// Validates identity
-        /// </summary>
-        public virtual bool CanWeTrustTo(TheSimplestIdentity identity)
+        public virtual bool CanWeTrustTo(IAuthIdentity identity)
         {
             return CSecurityIdentificator.Equals(identity.Token, StringComparison.Ordinal);
         }

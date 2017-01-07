@@ -1,15 +1,11 @@
 ﻿using System.Web.Services.Protocols;
+using CommonSecurityApi;
 
 namespace CommonSecurity
 {
-    /// <summary>
-    /// Container for security token
-    /// </summary>
-    public class TheSimplestIdentity : SoapHeader
+
+    public class TheSimplestIdentity : SoapHeader, IAuthIdentity
     {
-        /// <summary>
-        /// Security token
-        /// </summary>
         public string Token { get; set; }
     }
 }

@@ -3,8 +3,9 @@ using System.Linq;
 using System.Web.Mvc;
 using WebClientApplication.StockServiceReference;
 using Microsoft.AspNet.Identity;
+using WebClientApplication.Api;
 using WebClientApplication.Models;
-using static WebClientApplication.StockServiceReference.TheSimplestIdentity;
+using static WebClientApplication.StockServiceReference.SoapSimpleIdentity;
 
 namespace WebClientApplication.Controllers
 {
@@ -16,30 +17,53 @@ namespace WebClientApplication.Controllers
         public HomeController()
         {
             _dbContext = new ApplicationDbContext();
+
+        }
+
+        public HomeController(IServiceSoapClientDecorator webService) : this()
+        {
+            _webService = webService;
         }
 
         protected override void Dispose(bool disposing)
         {
             _dbContext.Dispose();
         }
-        
+
         //
         // GET: /Home/Index
         public ActionResult Index()
         {
-            return View();
+            return View("Index");
         }
 
-        private AccountSetting UserSettings
+        private AccountSetting _userSettings;
+        public AccountSetting UserSettings
         {
             get
             {
-                var userId = User.Identity.GetUserId();
-                return _dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
+                if (_userSettings == null)
+                {
+                    var userId = User.Identity.GetUserId();
+                    _userSettings = _dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
+                    
+                }
+                return _userSettings;
             }
+            set {_userSettings = value;}
         }
 
-        protected virtual WebServiceSoapClient WebServiceSoapClient { get; } = new WebServiceSoapClient();
+        private IServiceSoapClientDecorator _webService;
+        protected virtual IServiceSoapClientDecorator WebServiceSoapClient
+        {
+            get
+            {
+                if(_webService == null)
+                    _webService = new ServiceSoapClient( new WebServiceSoapClient());
+
+                return _webService;
+            }
+        }
 
         //
         // GET: /Home/StockPrices
@@ -55,7 +79,7 @@ namespace WebClientApplication.Controllers
                         tickerNames = userSetting.StockTickerNames.Select(x => x.Name).ToArray();
                 }
 
-                var tickers = WebServiceSoapClient.GetPricesForStocks(TheSimplestIdentityEver, tickerNames);
+                var tickers = WebServiceSoapClient.GetPricesForStocks( TheSimplestIdentityEver, tickerNames);
 
                 return PartialView("_StockPricesView", tickers);
             }

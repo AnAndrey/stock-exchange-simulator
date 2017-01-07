@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Services;
 using System.Web.Services.Protocols;
-using CommonSecurity;
+using CommonSecurityApi;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
 using StockExchangeApi;
@@ -18,9 +18,7 @@ namespace WebService
     [System.ComponentModel.ToolboxItem(false)]
     public class WebService : System.Web.Services.WebService
     {
-        public TheSimplestIdentity Identity;
-        protected TheSimplestIdentityValidator Authenticator { get; set; } =new TheSimplestIdentityValidator();
-
+        public SoapSimpleIdentity Identity;
 
         /// <summary>
         /// Method returns stock prices for a list of stock codes.
@@ -32,9 +30,9 @@ namespace WebService
 
             var container = new UnityContainer().LoadConfiguration();
             var stockEx = container.Resolve<IStockExchange>();
+            var authenticator = container.Resolve<IIdentityValidator>();
 
-
-            if (!Authenticator.CanWeTrustTo(Identity))
+            if (!authenticator.CanWeTrustTo(Identity))
             {
                 Context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return null;
@@ -50,5 +48,4 @@ namespace WebService
 
         }
     }
-
 }

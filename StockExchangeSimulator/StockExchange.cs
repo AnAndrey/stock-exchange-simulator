@@ -11,9 +11,9 @@ namespace StockExchangeSimulator
     {
         private const int CPriceMin = 1;
         private const int CPriceMax = 1000;
-        Random _randomizer = new Random();
+        private readonly Random _randomizer = new Random();
 
-        readonly HashSet<string> _defaultStocks = new HashSet<string>()
+        public static readonly HashSet<string> DefaultStocks = new HashSet<string>()
             {
                 "Exxon Mobil Corporation", "General Electric Company", "Microsoft Corporation", "BP p.l.c.",
                 "Citigroup Inc.", "Procter & Gamble Company (The)", "Wal-Mart Stores Inc.", "Pfizer Inc.",
@@ -23,7 +23,7 @@ namespace StockExchangeSimulator
                 "ROYAL DUTCH SHELL PLC", "ChevronTexaco Corporation", "Sanofi-Aventis SA",
                 "Vodafone AirTouch Public Limited Company", "Intel Corporation",
                 "International Business Machines Corporation", "ENI S.p.A.", "Cisco Systems Inc.",
-                "Berkshire Hathaway Inc.", "UBS AG", "Wells Fargo Cap IX", "AT&T Inc.", "ROYAL DUTCH SHELL PLC",
+                "Berkshire Hathaway Inc.", "UBS AG", "Wells Fargo Cap IX", "AT&T Inc.",
                 "Coca-Cola Company (The)", "China Mobile(Hong Kong) Ltd.", "Pepsico Inc.",
                 "Verizon Communications Inc.", "CONOCOPHILLIPS", "Genentech Inc.", "Amgen Inc.",
                 "Banco Santander Central Hispano S.A.", "Hewlett-Packard Company", "Google Inc."
@@ -42,7 +42,7 @@ namespace StockExchangeSimulator
 
         public virtual IEnumerable<IStockTicker> GetAllStockTickers()
         {
-            return _defaultStocks.Select(GetStockTicker).ToList();
+            return DefaultStocks.Select(GetStockTicker).ToList();
         }
 
         public virtual IEnumerable<IStockTicker> GetStockTickers(IEnumerable<string> names)
@@ -51,7 +51,7 @@ namespace StockExchangeSimulator
             {
                 var enumerableNames = names.ToArray();
                 if(enumerableNames.Any())
-                    return enumerableNames.Where(x => _defaultStocks.Contains(x)).
+                    return enumerableNames.Where(x => DefaultStocks.Contains(x)).
                          Select(GetStockTicker).ToList();
             }
 
