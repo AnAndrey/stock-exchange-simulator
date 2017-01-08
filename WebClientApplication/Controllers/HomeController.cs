@@ -17,12 +17,16 @@ namespace WebClientApplication.Controllers
         public HomeController()
         {
             _dbContext = new ApplicationDbContext();
+            WebServiceSoapClient = new ServiceSoapClient(new WebServiceSoapClient());
+            UserHelper = new UserHelper();
 
         }
 
-        public HomeController(IServiceSoapClientDecorator webService) : this()
+        public HomeController(IServiceSoapClientDecorator webService, ApplicationDbContext dbContext, IUserHelper userHelper)
         {
-            _webService = webService;
+            WebServiceSoapClient = webService;
+            UserHelper = userHelper;
+            _dbContext = dbContext;
         }
 
         protected override void Dispose(bool disposing)
@@ -37,6 +41,7 @@ namespace WebClientApplication.Controllers
             return View("Index");
         }
 
+        private IUserHelper UserHelper { get; }
         private AccountSetting _userSettings;
         public AccountSetting UserSettings
         {
@@ -44,7 +49,7 @@ namespace WebClientApplication.Controllers
             {
                 if (_userSettings == null)
                 {
-                    var userId = User.Identity.GetUserId();
+                    var userId = UserHelper.GetUserId(User);
                     _userSettings = _dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
                     
                 }
@@ -53,17 +58,7 @@ namespace WebClientApplication.Controllers
             set {_userSettings = value;}
         }
 
-        private IServiceSoapClientDecorator _webService;
-        protected virtual IServiceSoapClientDecorator WebServiceSoapClient
-        {
-            get
-            {
-                if(_webService == null)
-                    _webService = new ServiceSoapClient( new WebServiceSoapClient());
-
-                return _webService;
-            }
-        }
+        private IServiceSoapClientDecorator WebServiceSoapClient { get; }
 
         //
         // GET: /Home/StockPrices

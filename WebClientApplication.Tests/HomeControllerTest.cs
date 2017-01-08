@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using FakeDbSet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using WebClientApplication.Api;
@@ -16,10 +18,10 @@ namespace WebClientApplication.Tests
     public class HomeControllerTest
     {
         [TestMethod]
-        public void Index()
+        public void Home_Index_ShowIndexPage()
         {
             var serviceClientMoq = new Mock<IServiceSoapClientDecorator>();
-            var controller= new HomeController(serviceClientMoq.Object);
+            var controller= new HomeController(serviceClientMoq.Object, null, null);
 
             var view = controller.Index() as ViewResult;
             Assert.IsNotNull(view);
@@ -46,7 +48,7 @@ namespace WebClientApplication.Tests
             serviceClientMoq.Setup(x => x.GetPricesForStocks(It.IsAny<SoapSimpleIdentity>(),
                                                             It.IsAny<string[]>())).
                                                             Returns(stocks);
-            var controller = new HomeController(serviceClientMoq.Object);
+            var controller = new HomeController(serviceClientMoq.Object, null, null);
 
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
@@ -84,7 +86,7 @@ namespace WebClientApplication.Tests
                     return r;
                 });
 
-            var controller = new HomeController(serviceClientMoq.Object);
+            var controller = new HomeController(serviceClientMoq.Object, null,null);
 
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
             controller.UserSettings = new AccountSetting() {StockTickerNames = stockTickerNames};
@@ -103,26 +105,67 @@ namespace WebClientApplication.Tests
         }
 
         [TestMethod]
-        public void StockPrices_UnexpectedException_ShowExceptionView()
+        public void StockPrices_AuthentificatedAndNoUserSettings_StockTickersAccordingToSettings()
         {
-            string testException = Guid.NewGuid().ToString(); 
+
             var request = new Mock<HttpRequestBase>();
-            request.SetupGet(x => x.IsAuthenticated).Throws(new Exception(testException));
+            request.SetupGet(x => x.IsAuthenticated).Returns(true);
 
             var context = new Mock<HttpContextBase>();
             context.SetupGet(x => x.Request).Returns(request.Object);
 
+            var serviceClientMoq = new Mock<IServiceSoapClientDecorator>();
 
-            var controller = new HomeController();
+            var stockNames = new[] { Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
+            var expectedStockTickers = stockNames.Select(x => new StockTickerSerializable() { Name = x }).ToArray();
+
+            serviceClientMoq.Setup(x => x.GetPricesForStocks(It.IsAny<SoapSimpleIdentity>(),
+                    It.IsAny<string[]>())).
+                Returns<SoapSimpleIdentity, string[]>((x, y) => expectedStockTickers);
+
+            var userHelper = new Mock<IUserHelper>();
+            userHelper.Setup(x => x.GetUserId(It.IsAny<IPrincipal>())).Returns(String.Empty);
+
+            var dbContext = new Mock<ApplicationDbContext>();
+            var accountSettings = new InMemoryDbSet<AccountSetting>();
+            dbContext.SetupGet(x => x.AccountSettings).Returns(accountSettings);
+            var controller = new HomeController(serviceClientMoq.Object, dbContext.Object, userHelper.Object);
 
             controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
 
-            var view =controller.StockPrices() as ViewResult;
+            var view = controller.StockPrices() as PartialViewResult;
+
             Assert.IsNotNull(view);
-            Assert.AreEqual("Exception", view.ViewName);
-            var errorInfo = view.Model as HandleErrorInfo;
-            Assert.IsNotNull(errorInfo);
-            Assert.AreEqual(testException, errorInfo.Exception.Message);
+            Assert.AreEqual("_StockPricesView", view.ViewName);
+            var model = view.Model as StockTickerSerializable[];
+            Assert.IsNotNull(model);
+            for (int i = 0; i < expectedStockTickers.Count(); i++)
+            {
+                Assert.AreEqual(expectedStockTickers[i].Name,
+                    model[i].Name,
+                    $"Element at index'{i}' do not match.");
+            }
+        }
+
+        [TestMethod]
+        public void StockPrices_UnexpectedException_ShowExceptionView()
+        {
+            var request = new Mock<HttpRequestBase>();
+            request.SetupGet(x => x.IsAuthenticated).Returns(true);
+
+            var context = new Mock<HttpContextBase>();
+            context.SetupGet(x => x.Request).Returns(request.Object);
+
+            var controller = new HomeController(null, null, null);
+            
+                controller.ControllerContext = new ControllerContext(context.Object, new RouteData(), controller);
+
+                var view = controller.StockPrices() as ViewResult;
+                Assert.IsNotNull(view);
+                Assert.AreEqual("Exception", view.ViewName);
+                var errorInfo = view.Model as HandleErrorInfo;
+                Assert.IsNotNull(errorInfo);
+                Assert.IsNotNull(errorInfo.Exception);
         }
     }
 }

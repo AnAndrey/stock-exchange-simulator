@@ -196,7 +196,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\DbContextHelper.cs" />
     <Compile Include="Api\IServiceSoapClientDecorator.cs" />
+    <Compile Include="Api\UserHelper.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
@@ -209,11 +211,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Partial\SoapSimpleIdentity.Partial.cs" />
-    <Compile Include="Migrations\201701051832080_UserSettings.cs" />
-    <Compile Include="Migrations\201701051832080_UserSettings.Designer.cs">
-      <DependentUpon>201701051832080_UserSettings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountSetting.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
@@ -296,11 +293,6 @@
     <Content Include="Views\Settings\Index.cshtml" />
     <Content Include="Views\Home\_StockPricesView.cshtml" />
     <Content Include="Views\Shared\Exception.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201701051832080_UserSettings.resx">
-      <DependentUpon>201701051832080_UserSettings.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

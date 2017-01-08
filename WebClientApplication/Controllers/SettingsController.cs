@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
+using WebClientApplication.Api;
 using static WebClientApplication.StockServiceReference.SoapSimpleIdentity;
 using WebClientApplication.Models;
 using WebClientApplication.StockServiceReference;
@@ -15,18 +17,40 @@ namespace WebClientApplication.Controllers
         public SettingsController()
         {
              _dbContext = new ApplicationDbContext();
+            UserHelper = new UserHelper();
+            DbHelper = new DbContextHelper();
         }
+
+        public SettingsController(IServiceSoapClientDecorator webService, 
+            ApplicationDbContext dbContext, 
+            IContextDbHelper dbHelper,
+            IUserHelper userHelper) 
+        {
+            _webService = webService;
+            _dbContext = dbContext;
+            DbHelper = dbHelper;
+            UserHelper = userHelper;
+        }
+        private IUserHelper UserHelper { get; }
+
         protected override void Dispose(bool disposing)
         {
             _dbContext.Dispose();
         }
-        private AccountSetting UserSettings
+        private AccountSetting _userSettings;
+        public AccountSetting UserSettings
         {
             get
             {
-                var userId = User.Identity.GetUserId();
-                return _dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
+                if (_userSettings == null)
+                {
+                    var userId = UserHelper.GetUserId(User);
+                    _userSettings = _dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
+
+                }
+                return _userSettings;
             }
+            set { _userSettings = value; }
         }
 
         //
@@ -38,13 +62,13 @@ namespace WebClientApplication.Controllers
                 return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Settings") });
             }
 
-            HashSet<string> userStocks = null;
+            HashSet<string> enabledUserStocks = null;
 
             var userSetting = UserSettings;
             if (userSetting != null)
             {
-                userStocks = new HashSet<string>();
-                userSetting.StockTickerNames.All(x => userStocks.Add(x.Name));
+                enabledUserStocks = new HashSet<string>();
+                userSetting.StockTickerNames.All(x => enabledUserStocks.Add(x.Name));
             }
 
             var tickers = WebServiceSoapClient.GetPricesForStocks(TheSimplestIdentityEver, null);
@@ -52,7 +76,7 @@ namespace WebClientApplication.Controllers
             {
                 Name = t.Name,
                 Price = t.Price,
-                IsChecked = userStocks?.Contains(t.Name) ?? true
+                IsChecked = enabledUserStocks?.Contains(t.Name) ?? true
             }).ToList();
 
             var listOfTickers = new StockTickerListModel() { tickers = tickersModels };
@@ -62,39 +86,54 @@ namespace WebClientApplication.Controllers
         //
         // Post: /Settings/Save
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult Save(StockTickerListModel incomeTickers)
         {
 
-                var tickerNames = incomeTickers.tickers.Where(x => x.IsChecked).Select(x =>
-                    new StockTickerName()
-                    {
-                        Name = x.Name,
+            var tickerNames = incomeTickers.tickers.Where(x => x.IsChecked).Select(x =>
+                new StockTickerName()
+                {
+                    Name = x.Name,
 
-                    }).ToList();
+                }).ToList();
 
-                var userSetting = UserSettings ?? AddDefaultUserSettings();
+            var userSetting = UserSettings ?? AddDefaultUserSettings();
 
-                var oldTickers = _dbContext.StockTickerNames.Where(x => x.AccountSettingId == userSetting.Id);
+            var oldTickers = _dbContext.StockTickerNames.Where(x => x.AccountSettingId == userSetting.Id);
 
-                tickerNames.ForEach(x => x.AccountSettingId = userSetting.Id);
-                _dbContext.BulkDelete(oldTickers);
-                _dbContext.BulkInsert(tickerNames);
+            tickerNames.ForEach(x => x.AccountSettingId = userSetting.Id);
+            DbHelper.BulkDelete(_dbContext, oldTickers);
+            DbHelper.BulkInsert(_dbContext, tickerNames);
 
             return RedirectToAction("Index", "Home");
         }
+
+        private IContextDbHelper DbHelper { get; } = new DbContextHelper();
+
 
         private AccountSetting AddDefaultUserSettings()
         {
             var userSettings = _dbContext.AccountSettings.Add(new AccountSetting()
             {
-                ApplicationUserId = User.Identity.GetUserId(),
+                ApplicationUserId = UserHelper.GetUserId(User),
             });
             _dbContext.SaveChanges();
 
             return userSettings;
         }
 
-        public virtual WebServiceSoapClient WebServiceSoapClient { get;} = new WebServiceSoapClient();
+        private IServiceSoapClientDecorator _webService;
+
+        protected virtual IServiceSoapClientDecorator WebServiceSoapClient
+        {
+            get
+            {
+                if (_webService == null)
+                    _webService = new ServiceSoapClient(new WebServiceSoapClient());
+
+                return _webService;
+            }
+        }
     }
 }
