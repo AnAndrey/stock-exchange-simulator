@@ -7,11 +7,5 @@
 
 @section scripts
 {
-    <script>
-        var url = '@Url.Action("StockPrices", "Home")';
-        var notifications = $("#stock-prices-table");
-        setInterval(function () {
-            notifications.load(url);
-        }, 10000);
-    </script>
+    @Scripts.Render("~/bundles/refresh-stock-prices")
 }
