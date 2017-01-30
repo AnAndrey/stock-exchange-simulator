@@ -3,19 +3,10 @@
 <table id="stock-prices-table" class="table">
     <thead>
     <tr>
-        <th>Stock name</th>
-        <th>Price</th>
+        <th>Stock name</th><th>Price</th>
     </tr>
     </thead>
     <tbody>
-    @foreach (var stocTicker in Model)
-    {
-        <tr>
-            <td>@stocTicker.Name</td>
-            <td>@stocTicker.Price</td>
-        </tr>
-    }
+        <tr class="loading"><td colspan="5">loading...</td></tr>
     </tbody>
 </table>
-
-
