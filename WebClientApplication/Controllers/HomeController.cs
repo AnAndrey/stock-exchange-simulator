@@ -18,8 +18,7 @@ namespace WebClientApplication.Controllers
 
         private readonly StocksPusher _stocksPusher = StocksPusher.Instance;
 
-
-        private readonly Timer _timer;
+        private static Timer _timer;
 
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
 
@@ -28,11 +27,23 @@ namespace WebClientApplication.Controllers
             _dbContext = new ApplicationDbContext();
             WebServiceSoapClient = new ServiceSoapClient(new WebServiceSoapClient());
             UserHelper = new UserHelper();
-            _timer = new Timer(_stocksPusher.PushStocks, null, _updateInterval, _updateInterval);
-
+            //var temp = Timer;
+            if (_timer == null)
+            {
+                _timer = new Timer(PushStocks, null, _updateInterval, _updateInterval);
+            }
         }
 
- 
+        private Timer Timer => _timer ?? (_timer = new Timer(PushStocks, null, _updateInterval, _updateInterval));
+
+        private void PushStocks(object state)
+        {
+            if (_stocksPusher!=null)
+            {
+                var tickers = WebServiceSoapClient.GetPricesForStocks(TheSimplestIdentityEver, null);
+                _stocksPusher.PushStocks(tickers);
+            }
+        }
 
         public HomeController(IServiceSoapClientDecorator webService, ApplicationDbContext dbContext, IUserHelper userHelper)
         {

@@ -46,5 +46,10 @@ namespace WebClientApplication.SignalR
            };
            Clients.All.updateStocks(stocks);
         }
+
+        public void PushStocks(IEnumerable<StockTickerSerializable> stocks)
+        {
+            Clients.All.updateStocks(stocks);
+        }
     }
 }
