@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Web.Mvc;
 using WebClientApplication.StockServiceReference;
 using Microsoft.AspNet.Identity;
 using WebClientApplication.Api;
 using WebClientApplication.Models;
+using WebClientApplication.SignalR;
 using static WebClientApplication.StockServiceReference.SoapSimpleIdentity;
 
 namespace WebClientApplication.Controllers
@@ -14,13 +16,23 @@ namespace WebClientApplication.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
 
+        private readonly StocksPusher _stocksPusher = StocksPusher.Instance;
+
+
+        private readonly Timer _timer;
+
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
+
         public HomeController()
         {
             _dbContext = new ApplicationDbContext();
             WebServiceSoapClient = new ServiceSoapClient(new WebServiceSoapClient());
             UserHelper = new UserHelper();
+            _timer = new Timer(_stocksPusher.PushStocks, null, _updateInterval, _updateInterval);
 
         }
+
+ 
 
         public HomeController(IServiceSoapClientDecorator webService, ApplicationDbContext dbContext, IUserHelper userHelper)
         {

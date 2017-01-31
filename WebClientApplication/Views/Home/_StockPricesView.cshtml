@@ -7,6 +7,12 @@
     </tr>
     </thead>
     <tbody>
-        <tr class="loading"><td colspan="5">loading...</td></tr>
+            @foreach (var stocTicker in Model)
+            {
+                <tr data-symbol="@stocTicker.Name">
+                    <td> @stocTicker.Name </td>
+                    <td> @stocTicker.Price </td>
+                </tr>
+            }
     </tbody>
 </table>

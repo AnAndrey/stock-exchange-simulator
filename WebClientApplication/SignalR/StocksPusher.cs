@@ -15,16 +15,13 @@ namespace WebClientApplication.SignalR
             new Lazy<StocksPusher>(
                 () => new StocksPusher(GlobalHost.ConnectionManager.GetHubContext<StockHub>().Clients));
 
-        private readonly Timer _timer;
-
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
 
 
         private StocksPusher(IHubConnectionContext<dynamic> clients)
         {
             Clients = clients;
 
-            _timer = new Timer(PushStocks, null, _updateInterval, _updateInterval);
+           
 
         }
 
@@ -36,17 +33,15 @@ namespace WebClientApplication.SignalR
             }
         }
 
-        private IHubConnectionContext<dynamic> Clients
-        {
-            get;
-            set;
-        }
+        private IHubConnectionContext<dynamic> Clients{get;set;}
 
-        private void PushStocks(object state)
+        public void PushStocks(object state)
         {
+        
            var stocks =  new StockTickerSerializable[]
            {
-                new StockTickerSerializable() {Name = "blabla", Price = 1111},
+                new StockTickerSerializable() {Name = "Microsoft Corporation", Price =  new Random((int)Math.Floor(1112.11)).Next()},
+        
                 new StockTickerSerializable() {Name = "qweqwe", Price = 3333}
            };
            Clients.All.updateStocks(stocks);

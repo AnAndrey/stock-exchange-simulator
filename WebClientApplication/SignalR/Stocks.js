@@ -15,16 +15,6 @@ $(function () {
                     $stockTableBody = $('#stock-prices-table').find('tbody'),
                     rowTemplate = '<tr data-symbol="{Name}"><td>{Name}</td><td>{Price}</td></tr>';
 
-    function init(){ 
-        stocksHub.server.getPricesForStocks().done(function (stocks) {
-            $stockTableBody.empty();
-            $.each(stocks, function () {
-                var stock = formatStock(this);
-                $stockTableBody.append(rowTemplate.supplant(stock));
-            });
-        });
-    }
-
     function formatStock(stock) {
         return {
             Name: stock.Name,
@@ -36,11 +26,11 @@ $(function () {
         $.each(stocks, function () {
             var stock = formatStock(this);
             $row = $(rowTemplate.supplant(stock));
-            $stockTableBody.find('tr[data-symbol=' + stock.Name + ']')
+            $stockTableBody.find('tr[data-symbol=' + '"'+ stock.Name + '"'  + ']')
                        .replaceWith($row);
         });
     }
 
     // Start the connection
-    $.connection.hub.start().done(init);
+    $.connection.hub.start();
 });
