@@ -14,47 +14,53 @@ namespace WebClientApplication.Controllers
     [HandleError(ExceptionType = typeof(System.Exception), View = "Exception")]
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _dbContext;
 
-        private readonly StocksPusher _stocksPusher = StocksPusher.Instance;
+        private static StocksPusher _stocksPusher;
 
         private static Timer _timer;
+        
 
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(1000);
 
+
         public HomeController()
         {
-            _dbContext = new ApplicationDbContext();
-            WebServiceSoapClient = new ServiceSoapClient(new WebServiceSoapClient());
-            UserHelper = new UserHelper();
-            //var temp = Timer;
-            if (_timer == null)
-            {
-                _timer = new Timer(PushStocks, null, _updateInterval, _updateInterval);
-            }
-        }
+            var dbContext = new ApplicationDbContext();
 
-        private Timer Timer => _timer ?? (_timer = new Timer(PushStocks, null, _updateInterval, _updateInterval));
+            Setup(new ServiceSoapClient(new WebServiceSoapClient()), 
+                dbContext, 
+                new UserHelper(), 
+                new UserSettingsProvider(dbContext));
+            
+        }
 
         private void PushStocks(object state)
         {
             if (_stocksPusher!=null)
             {
-                var tickers = WebServiceSoapClient.GetPricesForStocks(TheSimplestIdentityEver, null);
-                _stocksPusher.PushStocks(tickers);
+                _stocksPusher.PushStocks();
             }
         }
 
-        public HomeController(IServiceSoapClientDecorator webService, ApplicationDbContext dbContext, IUserHelper userHelper)
+        public HomeController(IServiceSoapClientDecorator webService, ApplicationDbContext dbContext, IUserHelper userHelper, IUserSettingsProvider userSettingsProvider)
+        {
+            Setup(webService, dbContext, userHelper, userSettingsProvider);
+        }
+
+        private void Setup(IServiceSoapClientDecorator webService, ApplicationDbContext dbContext, IUserHelper userHelper, IUserSettingsProvider userSettingsProvider)
         {
             WebServiceSoapClient = webService;
             UserHelper = userHelper;
-            _dbContext = dbContext;
+            DbContext = dbContext;
+            UserSettingsProvider = userSettingsProvider;
+            _stocksPusher = StocksPusher.GetInstance(userSettingsProvider, webService);
+
+            _timer = new Timer(PushStocks, null, _updateInterval, _updateInterval);
         }
 
         protected override void Dispose(bool disposing)
         {
-            _dbContext.Dispose();
+            DbContext.Dispose();
         }
 
         //
@@ -64,24 +70,29 @@ namespace WebClientApplication.Controllers
             return View("Index");
         }
 
-        private IUserHelper UserHelper { get; }
-        private AccountSetting _userSettings;
-        public AccountSetting UserSettings
-        {
-            get
-            {
-                if (_userSettings == null)
-                {
-                    var userId = UserHelper.GetUserId(User);
-                    _userSettings = _dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
-                    
-                }
-                return _userSettings;
-            }
-            set {_userSettings = value;}
-        }
+        private IUserHelper UserHelper { get; set; }
+        private IUserSettingsProvider UserSettingsProvider { get; set; }
 
-        private IServiceSoapClientDecorator WebServiceSoapClient { get; }
+        private ApplicationDbContext DbContext { get; set; }
+
+
+        //private AccountSetting _userSettings;
+        //public AccountSetting UserSettings
+        //{
+        //    get
+        //    {
+        //        if (_userSettings == null)
+        //        {
+        //            var userId = UserHelper.GetUserId(User);
+        //            _userSettings = DbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
+
+        //        }
+        //        return _userSettings;
+        //    }
+        //    set {_userSettings = value;}
+        //}
+
+        private IServiceSoapClientDecorator WebServiceSoapClient { get; set; }
 
         //
         // GET: /Home/StockPrices
@@ -92,9 +103,7 @@ namespace WebClientApplication.Controllers
                 string[] tickerNames = null;
                 if (Request.IsAuthenticated)
                 {
-                    var userSetting = UserSettings;
-                    if (userSetting != null)
-                        tickerNames = userSetting.StockTickerNames.Select(x => x.Name).ToArray();
+                    tickerNames = UserSettingsProvider.GetStockTickerNames(UserHelper.GetUserId(User));
                 }
 
                 var tickers = WebServiceSoapClient.GetPricesForStocks( TheSimplestIdentityEver, tickerNames);
@@ -106,6 +115,39 @@ namespace WebClientApplication.Controllers
                 return View("Exception", new HandleErrorInfo(ex, "Home", "StockPrices") );
             }
         }
+    }
+
+    public interface IUserSettingsProvider
+    {
+        AccountSetting GetAccountSetting(string userId);
+        string[] GetStockTickerNames(string userId);
+    }
+
+    public class UserSettingsProvider: IUserSettingsProvider
+    {
+        private readonly ApplicationDbContext DbContext;
+
+        public UserSettingsProvider(ApplicationDbContext dbContext)
+        {
+            DbContext = dbContext;
+        }
+
+        public AccountSetting GetAccountSetting(string userId)
+        {
+            var dbContext = new ApplicationDbContext();
+            {
+
+                var userSettings = dbContext.AccountSettings.SingleOrDefault(x => x.ApplicationUserId == userId);
+                return userSettings;
+            }
+        }
+
+        public string[] GetStockTickerNames(string userId)
+        {
+            var userSettings = GetAccountSetting(userId);
+            return userSettings?.StockTickerNames.Select(x => x.Name).ToArray();
+        }
+
     }
 }
 

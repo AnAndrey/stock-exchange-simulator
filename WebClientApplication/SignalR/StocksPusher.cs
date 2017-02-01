@@ -2,54 +2,65 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using WebClientApplication.Api;
+using WebClientApplication.Controllers;
 using WebClientApplication.StockServiceReference;
-
+using static WebClientApplication.StockServiceReference.SoapSimpleIdentity;
 namespace WebClientApplication.SignalR
 {
     public class StocksPusher
     {
-        private readonly static Lazy<StocksPusher> _instance =
-            new Lazy<StocksPusher>(
-                () => new StocksPusher(GlobalHost.ConnectionManager.GetHubContext<StockHub>().Clients));
+        private static StocksPusher _instance;
+
+        private IUserSettingsProvider _userSettingsProvider;
+        private IServiceSoapClientDecorator _soapClient;
 
 
-
-        private StocksPusher(IHubConnectionContext<dynamic> clients)
+        private StocksPusher(IHubContext hubContext, IUserSettingsProvider userSettingsProvider, IServiceSoapClientDecorator soapClient)
         {
-            Clients = clients;
+            HubContext = hubContext;
+            _userSettingsProvider = userSettingsProvider;
+            _soapClient = soapClient;
 
-           
+            HubContext.Groups.Add("47f6d54c-2804-4672-a17f-c11f4081e50f", "47f6d54c-2804-4672-a17f-c11f4081e50f");
+
+
 
         }
 
-        public static StocksPusher Instance
+        public static StocksPusher GetInstance(IUserSettingsProvider userSettingsProvider, IServiceSoapClientDecorator soapClient)
         {
-            get
+                return _instance = new StocksPusher(GlobalHost.ConnectionManager.GetHubContext<StockHub>(),
+                                                    userSettingsProvider,
+                                                    soapClient);
+        }
+
+        private IHubContext HubContext{ get;set;}
+
+
+        public  void PushStocks()
+        {
+
+            var stocks = _soapClient.GetPricesForStocks(TheSimplestIdentityEver, null);
+
+            foreach (var user in StockHub.MyUsers)
             {
-                return _instance.Value;
+                var tickers =_userSettingsProvider.GetStockTickerNames(user.Value);
+                if (tickers != null)
+                {
+                    var setOfTickers = new HashSet<string>(tickers);
+                    var customezedStocks = stocks.Where(s => setOfTickers.Contains(s.Name));
+                    HubContext.Clients.All.updateStocks(customezedStocks);
+                }
             }
-        }
-
-        private IHubConnectionContext<dynamic> Clients{get;set;}
-
-        public void PushStocks(object state)
-        {
-        
-           var stocks =  new StockTickerSerializable[]
-           {
-                new StockTickerSerializable() {Name = "Microsoft Corporation", Price =  new Random((int)Math.Floor(1112.11)).Next()},
-        
-                new StockTickerSerializable() {Name = "qweqwe", Price = 3333}
-           };
-           Clients.All.updateStocks(stocks);
-        }
-
-        public void PushStocks(IEnumerable<StockTickerSerializable> stocks)
-        {
-            Clients.All.updateStocks(stocks);
+            
+            //HubContext.All.updateStocks(stocks);
+            
+            //HubContext.Clients.Client("47f6d54c-2804-4672-a17f-c11f4081e50f").updateStocks(stocks);
         }
     }
 }
